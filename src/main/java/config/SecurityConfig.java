@@ -71,24 +71,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 LOGGER.debug("commence start");
 
                 HttpServletUtil.addAccessControlHeader(response, AppConfiguration.CORS_ACCESS_CONTROL_ALLOW_ORIGIN, "true");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
  
                 // 認証情報がない場合
                 if (!HttpServletUtil.hasAuthorization(request)) {
                     LOGGER.debug("no Authorization");
                     
-                    // XHR経由でない場合は www-Authenticate Headerを追加する
-                    if (!HttpServletUtil.isXMLHttpRequest(request)) {
+                    if (HttpServletUtil.isXMLHttpRequest(request)) {
+                        // XHR経由の場合は、ブラウザの認証ダイアログを抑制させるため
+                        // www-Authenticate Header は追加しない
+                        HttpServletUtil.setJsonBody(response, new ErrorResponse("no Authorization"));
+                    } else {
+                        // XHR経由でない場合は www-Authenticate Headerを追加する
                         HttpServletUtil.addWwwAuthenticateHeader(response, REALM_NAME);
                     }
-                    
-                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "");
-                    return;
+                } else {
+                    // 認証情報がある場合は、エラーを返す
+                    LOGGER.debug("has Authorization (invalid user or password)");
+                    HttpServletUtil.setJsonBody(response, new ErrorResponse("invalid user or password"));
                 }
-                
-                // 認証情報がある場合は、エラーを返す
-                LOGGER.debug("has Authorization (invalid user or password)");
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                HttpServletUtil.setJsonBody(response, new ErrorResponse("invalid user or password"));
             }
         };
     }
