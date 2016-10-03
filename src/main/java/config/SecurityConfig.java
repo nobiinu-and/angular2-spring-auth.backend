@@ -7,9 +7,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -17,7 +21,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -26,10 +29,15 @@ import service.LoginUserDetailsService;
 import util.HttpServletUtil;
 
 @EnableWebSecurity
+@ComponentScan("service")
+@Import(EntityManagerConfiguration.class)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private static final String REALM_NAME = "Auth Sample";
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityConfig.class);
+    
+    @Autowired
+    LoginUserDetailsService loginUserDetailsService;
     
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -52,11 +60,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
             ;
     }    
-    
-    @Bean
-    @Override
-    protected UserDetailsService userDetailsService(){
-        return new LoginUserDetailsService();
+
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth)
+            throws Exception {
+        auth.userDetailsService(this.loginUserDetailsService)
+            .passwordEncoder(passwordEncoder());
     }
     
     @Bean

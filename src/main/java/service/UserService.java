@@ -1,47 +1,48 @@
 package service;
 
-import entity.Authority;
 import entity.User;
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import repository.UserRepository;
 
 @Service
 public class UserService {
 
-    public User getByName(String name) throws UserNotFoundException {
-        if (name == null) {
-            throw new UserNotFoundException("name is null");
-        }
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
+
+    @Autowired
+    UserRepository userRepository;
+    
+    public List<User> findAll() {
+        return this.userRepository.findAll();
+    }
+    
+    public User findOneByName(String name) throws UserNotFoundException {
+        LOGGER.debug("findOneByName name:" + name);
         
         User user = null;
-        switch (name) {
-            case "user1":
-                user = new User("1", name);
-                user.addAuthorities(new Authority("ROLE_USER"));
-                user.setPassword("u");
-                break;
-            case "user2":
-                user = new User("2", name);
-                user.addAuthorities(new Authority("ROLE_USER"));
-                user.setPassword("u");
-                break;
-            case "admin":
-                user = new User("9999", name);
-                user.addAuthorities(new Authority("ROLE_ADMIN"));
-                user.setPassword("u");
-                break;
+        try {
+            user = this.userRepository.findOneByName(name);
+        } catch (Exception ex) {
+            LOGGER.error("findOne userRepository.findOne failed", ex);
         }
-        
+
         if (user == null) {
-            throw new UserNotFoundException("user does not exists");
+            LOGGER.debug("findOneByName not found. name:" + name);
+            throw new UserNotFoundException("id: " + name + " not found.");
         }
+
+        LOGGER.debug("findOneByName found. id:" + user.getId() + " name:" + user.getName());
         
         return user;
     }
     
-    public User get(String id) throws UserNotFoundException {
-        if (id == null) {
-            throw new UserNotFoundException("id is null");
-        }
+    public User findOne(String id) throws UserNotFoundException {
+        
+        LOGGER.debug("findOne id:" + id);
         
         switch(id) {
             case "9":
@@ -52,17 +53,20 @@ public class UserService {
                 throw new UserNotFoundException(String.format("id '%s' is not found", id));
         }
         
-        User result = new User(id, "name-" + id);
-        
-        switch(id) {
-            case "1":
-                result.addAuthorities(new Authority("hoge"));
-                break;
-            default:
-                result.addAuthorities(new Authority("hoge"));
-                result.addAuthorities(new Authority("fuga"));
+        User user = null;
+        try {
+            user = this.userRepository.findOne(id);
+        } catch (Exception ex) {
+            LOGGER.error("findOne userRepository.findOne failed", ex);
         }
 
-        return result;
+        if (user == null) {
+            LOGGER.debug("findOne not found. id:" + id);
+            throw new UserNotFoundException("id: " + id + " not found.");
+        }
+
+        LOGGER.debug("findOne found. id:" + user.getId() + " name:" + user.getName());
+
+        return user;
     }
 }

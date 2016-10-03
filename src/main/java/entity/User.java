@@ -12,6 +12,10 @@ public class User {
     private String hashedPassword;
     private List<Authority> authorities = new ArrayList<>();
 
+    public User() {
+        
+    }
+    
     public User(String id, String name) {
         this.id = id;
         this.name = name;
