@@ -1,6 +1,6 @@
 package service;
 
-import entity.Permission;
+import entity.Authority;
 import entity.User;
 import org.springframework.stereotype.Service;
 
@@ -16,17 +16,23 @@ public class UserService {
         switch (name) {
             case "user1":
                 user = new User("1", name);
-                user.addPermission(new Permission("hoge"));
+                user.addAuthorities(new Authority("ROLE_USER"));
+                user.setPassword("u");
                 break;
             case "user2":
                 user = new User("2", name);
-                user.addPermission(new Permission("hoge"));
-                user.addPermission(new Permission("fuga"));
+                user.addAuthorities(new Authority("ROLE_USER"));
+                user.setPassword("u");
                 break;
             case "admin":
                 user = new User("9999", name);
-                user.addPermission(new Permission("all"));
+                user.addAuthorities(new Authority("ROLE_ADMIN"));
+                user.setPassword("u");
                 break;
+        }
+        
+        if (user == null) {
+            throw new UserNotFoundException("user does not exists");
         }
         
         return user;
@@ -50,11 +56,11 @@ public class UserService {
         
         switch(id) {
             case "1":
-                result.addPermission(new Permission("hoge"));
+                result.addAuthorities(new Authority("hoge"));
                 break;
             default:
-                result.addPermission(new Permission("hoge"));
-                result.addPermission(new Permission("fuga"));
+                result.addAuthorities(new Authority("hoge"));
+                result.addAuthorities(new Authority("fuga"));
         }
 
         return result;

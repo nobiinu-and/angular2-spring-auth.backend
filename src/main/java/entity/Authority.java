@@ -5,14 +5,16 @@
  */
 package entity;
 
+import org.springframework.security.core.GrantedAuthority;
+
 /**
  *
  * @author and
  */
-public class Permission {
+public class Authority implements GrantedAuthority {
     private String name;
 
-    public Permission(String name) {
+    public Authority(String name) {
         this.name = name;
     }
 
@@ -23,4 +25,11 @@ public class Permission {
     public void setName(String name) {
         this.name = name;
     }
+
+    @Override
+    public String getAuthority() {
+        return this.name;
+    }
+    
+    
 }

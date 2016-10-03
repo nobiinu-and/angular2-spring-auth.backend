@@ -28,6 +28,9 @@
 	<logger name="config" level="${logging.app.level}" additivity="false">
 		<appender-ref ref="STDOUT" />
 	</logger>
+	<logger name="service" level="${logging.app.level}" additivity="false">
+		<appender-ref ref="STDOUT" />
+	</logger>
 	
 	<root level="error">
 		<appender-ref ref="STDOUT" />
