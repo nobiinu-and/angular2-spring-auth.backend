@@ -45,6 +45,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
             .authorizeRequests()
             .antMatchers(HttpMethod.OPTIONS, "/api/**").permitAll() // preflightのためにすべてのPATHでOPTIONSを有効にする
+            .antMatchers(HttpMethod.GET, "/api/logout").permitAll()
             .antMatchers("/api/users").hasRole("ADMIN")
             .antMatchers("/api/**").fullyAuthenticated()
             .anyRequest().permitAll()
